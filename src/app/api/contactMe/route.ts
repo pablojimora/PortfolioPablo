@@ -1,5 +1,6 @@
 import Contacts from "@/src/database/models/contacts";
 import dbConnection from "@/src/lib/dbconnection";
+import { appendToGoogleSheet } from "@/src/lib/googleSheets";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -17,10 +18,17 @@ export async function POST(request: Request) {
       email,
       message,
     });
-
+    await appendToGoogleSheet({
+            fullname,
+            phone,
+            email,
+            message,
+            createdAt: new Date().toISOString(),
+        });
+    
     //Guardar en MongoDB
     const savedContact = await newContact.save();
-
+    
     // Responder
     return NextResponse.json(
       { ok: true, data: savedContact },
@@ -34,3 +42,4 @@ export async function POST(request: Request) {
     );
   }
 }
+
